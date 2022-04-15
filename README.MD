@@ -14,4 +14,4 @@ install the thingy using
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/hentai-burner/mastur-beta/main/setup.ps1'))
 ```
 
-all dependencies will be installed alongside the application
+all dependencies will be installed alongside the application, or during the first run
