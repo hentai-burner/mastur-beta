@@ -96,7 +96,7 @@ Write-Progress -Activity 'Installing' -Status 'Initial Setup' -SecondsRemaining 
 
 if ($null -eq $env:ChocolateyInstall) {
 	Write-Host "This computer doesn't Chocolatey Installed. Installing Chocolatey for dependencies. It will be removed after installation."
-	Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining  -PercentComplete 
+	Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining 1 -PercentComplete 9
 	$InstallDir = "$Directory\chocoportable" | Out-Null
 	$env:ChocolateyInstall = "$InstallDir" | Out-Null
 	Set-ExecutionPolicy Bypass -Scope Process -Force | Out-Null
@@ -118,12 +118,12 @@ Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRe
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User") #reset path
 Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Cloning Repository'
 
-Invoke-Expression "git init" | Out-Null
-Invoke-Expression "git remote add origin $repoURL" | Out-Null
-Invoke-Expression "git fetch" | Out-Null
-Invoke-Expression "git reset origin/main" | Out-Null  # Required when the versioned files existed in path before "git init" of this repo.
-Invoke-Expression "git checkout -t origin/main" | Out-Null
-#Invoke-Expression "git clone -q --recursive $repoUrl $Directory" | Out-Null #clone doesn't work on non-empty dir
+# Invoke-Expression "git init" | Out-Null
+# Invoke-Expression "git remote add origin $repoURL" | Out-Null
+# Invoke-Expression "git fetch" | Out-Null
+# Invoke-Expression "git reset origin/main" | Out-Null  # Required when the versioned files existed in path before "git init" of this repo.
+# Invoke-Expression "git checkout -t origin/main" | Out-Null
+Invoke-Expression "git clone -q --recursive $repoUrl $Directory" | Out-Null #clone doesn't work on non-empty dir, but should be fine, as we dont write anything until this
 
 Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Saving Configuration'
 #send info to JSON
@@ -132,8 +132,9 @@ $UserData | ConvertTo-Json | Out-File -FilePath "$Directory\config.json" #unsure
 Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Hiding Directory and Contents'
 #hide directory and all child objects
 $DIR = Get-Item $Directory -Force
-$DIR.attributes = "Hidden"
-Get-ChildItem -path $Directory -Recurse -Force | ForEach-Object { $_.attributes = "Hidden" } | Out-Null
+#TODO: Uncomment
+#$DIR.attributes = "Hidden"
+#Get-ChildItem -path $Directory -Recurse -Force | ForEach-Object { $_.attributes = "Hidden" } | Out-Null
 
 Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1  -PercentComplete 1 -CurrentOperation 'Setting Up Run at Startup'
 #Set to run at Startup
@@ -146,5 +147,6 @@ Write-Progress -Activity 'Installing' -Status 'Finished' -SecondsRemaining 0 -Pe
 
 Invoke-Expression "$Directory\start.ps1"
 
+#TODO: Uncomment
 #Clear-Host
 
