@@ -29,7 +29,9 @@ Pause
 Write-Host "Alright! We're getting you setup; Hold Tight, I'll be with you shortly."
 
 $Directory = "C:\.masturbeta" #maybe change this to a folder-browser
-mkdir -p $Directory
+if (-not (test-path "$Directory") ) {
+	New-Item -ItemType directory -Path $Directory | Out-Null  
+}
 Set-Location $Directory
 
 $repoUrl = "https://github.com/hentai-burner/mastur-beta.git"
@@ -44,9 +46,9 @@ Pause
 
 #Find Hentai Folder
 $FileBrowser = New-Object System.Windows.Forms.FolderBrowserDialog -Property @{ 
-                                                                                RootFolder = 'MyComputer'
-                                                                                Description = 'Select the folder where you keep your porn.'
-                                                                            }
+																				RootFolder = 'MyComputer'
+																				Description = 'Select the folder where you keep your porn.'
+																			}
 $null = $FileBrowser.ShowDialog()
 $pornFolder = $FileBrowser.SelectedPath
 
@@ -56,21 +58,21 @@ $kinks = @("Blacked","Censored","Furry","Gay","Hypno","MLP","Fart","Toilet","Fut
 #$kinkOn = @($true,   $true,     $true,  $true,$true,  $true,$true, $true,   $true,     $true)
 $kinkOn = @()
 for ($i = 0; $i -lt $kinks.Count; $i++) {
-    $kink = $kinks[$i]
-    $ans = Read-Host "Are you okay with $kink porn?"
-    #$kinkOn[$i] = if($ans -eq ''){$true} else{$false} 
-    $kinkOn += if($ans -eq ''){$true} else{$false} 
+	$kink = $kinks[$i]
+	$ans = Read-Host "Are you okay with $kink porn?"
+	#$kinkOn[$i] = if($ans -eq ''){$true} else{$false} 
+	$kinkOn += if($ans -eq ''){$true} else{$false} 
 }
 
 #save info
 $UserData = New-Object PSObject -Property @{
-        Version = 0.1
-        Name = $name 
-        PornFolder = $pornFolder
-    } # see https://devblogs.microsoft.com/powershell/new-object-psobject-property-hashtable/
-    for ($i = 0; $i -lt $kinkOn.Count; $i++) {
-        $UserData | Add-Member -NotePropertyName $kinks[$i] -NotePropertyValue $kinkOn[$i]
-    }
+		Version = 0.1
+		Name = $name 
+		PornFolder = $pornFolder
+	} # see https://devblogs.microsoft.com/powershell/new-object-psobject-property-hashtable/
+	for ($i = 0; $i -lt $kinkOn.Count; $i++) {
+		$UserData | Add-Member -NotePropertyName $kinks[$i] -NotePropertyValue $kinkOn[$i]
+	}
 
 #check if info is correct
 Write-Host ($UserData | Format-Table | Out-String)
@@ -84,40 +86,40 @@ Read-Host "Is this Correct? (Y/n)"
 
 Write-Progress -Activity 'Installing' -Status 'Initial Setup' -SecondsRemaining -PercentComplete 9 -CurrentOperation 'Creating Directory'
 if (-not (test-path "$Directory") ) {
-    New-Item -ItemType directory -Path $Directory | Out-Null  
+	New-Item -ItemType directory -Path $Directory | Out-Null  
 }
 else {
-    Write-Host "Directory Already Exists. If you're updating, run update.ps1 instead."
-    Write-Host "Do you want to reset and replace the directory? (Y/n)"
-    $tmp = Read-Host
-    if (-not ("$tmp" -like "*n*")) {
-        New-Item -ItemType directory -Path $Directory -Force | Out-Null
-    }
+	Write-Host "Directory Already Exists. If you're updating, run update.ps1 instead."
+	Write-Host "Do you want to reset and replace the directory? (Y/n)"
+	$tmp = Read-Host
+	if (-not ("$tmp" -like "*n*")) {
+		New-Item -ItemType directory -Path $Directory -Force | Out-Null
+	}
 }
 
 if ($null -eq $env:ChocolateyInstall) {
-    Write-Host "This computer doesn't Chocolatey Installed. Installing Chocolatey for dependencies. It will be removed after installation."
-    Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining  -PercentComplete 
-    $InstallDir = "$Directory\chocoportable" | Out-Null
-    $env:ChocolateyInstall = "$InstallDir" | Out-Null
-    Set-ExecutionPolicy Bypass -Scope Process -Force | Out-Null
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+	Write-Host "This computer doesn't Chocolatey Installed. Installing Chocolatey for dependencies. It will be removed after installation."
+	Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining  -PercentComplete 
+	$InstallDir = "$Directory\chocoportable" | Out-Null
+	$env:ChocolateyInstall = "$InstallDir" | Out-Null
+	Set-ExecutionPolicy Bypass -Scope Process -Force | Out-Null
+	[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+	Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 }
 
 #Clear-Host
 Write-Host "Installing Dependencies; Check the top of the shell for more info; The program may seem unresponsive, so don't panic."
-Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining  -PercentComplete  -CurrentOperation "Updating Existing Packages; The program may seem unresponsive, so don't panic."
+Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining 1 -PercentComplete 1  -CurrentOperation "Updating Existing Packages; The program may seem unresponsive, so don't panic."
 Invoke-Expression "$env:ChocolateyInstall\choco.exe upgrade all -y" | Out-Null
-Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining -PercentComplete  -CurrentOperation 'Installing Dependencies - git'
+Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Installing Dependencies - git'
 Invoke-Expression "$env:ChocolateyInstall\choco.exe install git -y" | Out-Null
-Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining -PercentComplete  -CurrentOperation 'Installing Dependencies - python'
+Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Installing Dependencies - python'
 Invoke-Expression "$env:ChocolateyInstall\choco.exe install python --params ""/NoLockdown"" -y" | Out-Null
-Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining -PercentComplete  -CurrentOperation 'Installing Dependencies - pip'
+Write-Progress -Activity 'Installing' -Status 'Installing Chocolatey' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Installing Dependencies - pip'
 Invoke-Expression "$env:ChocolateyInstall\choco.exe install pip -y" | Out-Null
-Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining  -PercentComplete  -CurrentOperation 'Resetting Path'
+Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Resetting Path'
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User") #reset path
-Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining  -PercentComplete  -CurrentOperation 'Cloning Repository'
+Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Cloning Repository'
 
 Invoke-Expression "git init" | Out-Null
 Invoke-Expression "git remote add origin $repoURL" | Out-Null
@@ -126,17 +128,17 @@ Invoke-Expression "git reset origin/main" | Out-Null  # Required when the versio
 Invoke-Expression "git checkout -t origin/main" | Out-Null
 #Invoke-Expression "git clone -q --recursive $repoUrl $Directory" | Out-Null #clone doesn't work on non-empty dir
 
-Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining  -PercentComplete  -CurrentOperation 'Saving Configuration'
+Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Saving Configuration'
 #send info to JSON
 $UserData | ConvertTo-Json | Out-File -FilePath "$Directory\config.json" #unsure if this works
 
-Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining  -PercentComplete  -CurrentOperation 'Hiding Directory and Contents'
+Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1 -PercentComplete 1 -CurrentOperation 'Hiding Directory and Contents'
 #hide directory and all child objects
 $DIR = Get-Item $Directory -Force
 $DIR.attributes = "Hidden"
 Get-ChildItem -path $Directory -Recurse -Force | ForEach-Object { $_.attributes = "Hidden" } | Out-Null
 
-Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining  -PercentComplete  -CurrentOperation 'Setting Up Run at Startup'
+Write-Progress -Activity 'Installing' -Status 'Installing MasturBeta' -SecondsRemaining 1  -PercentComplete 1 -CurrentOperation 'Setting Up Run at Startup'
 #Set to run at Startup
 "PowerShell -NoProfile -ExecutionPolicy Bypass -Command ""& { Start-Process PowerShell -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File """"C:\.masturbeta\start.ps1"""" -Verb RunAs}" | Out-File -FilePath "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\masturbeta.bat" # -Encoding utf8
 
