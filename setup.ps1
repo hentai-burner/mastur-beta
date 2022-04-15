@@ -29,6 +29,7 @@ Pause
 Write-Host "Alright! We're getting you setup; Hold Tight, I'll be with you shortly."
 
 $Directory = "C:\.masturbeta" #maybe change this to a folder-browser
+mkdir -p $Directory
 Set-Location $Directory
 
 $repoUrl = "https://github.com/hentai-burner/mastur-beta.git"
