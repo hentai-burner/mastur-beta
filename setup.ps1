@@ -32,12 +32,20 @@ $Directory = "C:\.masturbeta" #maybe change this to a folder-browser
 if (-not (test-path "$Directory") ) {
 	New-Item -ItemType directory -Path $Directory | Out-Null  
 }
+else {
+	Write-Host "Directory Already Exists. If you're updating, run update.ps1 instead."
+	Write-Host "Do you want to reset and replace the directory? (Y/n)"
+	$tmp = Read-Host
+	if (-not ("$tmp" -like "*n*")) {
+		New-Item -ItemType directory -Path $Directory -Force | Out-Null
+	}
+}
 Set-Location $Directory
 
 $repoUrl = "https://github.com/hentai-burner/mastur-beta.git"
 
 #get info 
-Write-Host -Prompt "What's your name?"
+Write-Host "What's your name?"
 $name = if (($result = Read-Host "Press enter to accept default value [$env:UserName], or manually insert a value.") -eq '') { $env:UserName } else { $result }
 
 Write-Host "This program will use your normal Porn Collection as incentive from time to time, so make sure you select a folder with only porn."
@@ -84,18 +92,7 @@ Read-Host "Is this Correct? (Y/n)"
 
 #install everything
 
-Write-Progress -Activity 'Installing' -Status 'Initial Setup' -SecondsRemaining -PercentComplete 9 -CurrentOperation 'Creating Directory'
-if (-not (test-path "$Directory") ) {
-	New-Item -ItemType directory -Path $Directory | Out-Null  
-}
-else {
-	Write-Host "Directory Already Exists. If you're updating, run update.ps1 instead."
-	Write-Host "Do you want to reset and replace the directory? (Y/n)"
-	$tmp = Read-Host
-	if (-not ("$tmp" -like "*n*")) {
-		New-Item -ItemType directory -Path $Directory -Force | Out-Null
-	}
-}
+Write-Progress -Activity 'Installing' -Status 'Initial Setup' -SecondsRemaining 1 -PercentComplete 9 -CurrentOperation 'Creating Directory'
 
 if ($null -eq $env:ChocolateyInstall) {
 	Write-Host "This computer doesn't Chocolatey Installed. Installing Chocolatey for dependencies. It will be removed after installation."
@@ -149,5 +146,5 @@ Write-Progress -Activity 'Installing' -Status 'Finished' -SecondsRemaining 0 -Pe
 
 Invoke-Expression "$Directory\start.ps1"
 
-Clear-Host
+#Clear-Host
 
